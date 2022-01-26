@@ -1,0 +1,29 @@
+{
+  "name": "serve",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dayjs": "^1.10.7",
+    "excel-export": "^0.5.1",
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0",
+    "formidable": "^2.0.1",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1",
+    "path": "^0.12.7",
+    "qs": "^6.10.3",
+    "silly-datetime": "^0.1.2",
+    "url": "^0.11.0",
+    "uuid": "^8.3.2"
+  }
+}
