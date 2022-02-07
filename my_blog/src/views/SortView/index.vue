@@ -9,60 +9,171 @@
         :key="type.id"
         @click="selectType(type)"
       >
-        {{ type.name }}
+        {{ type.label }}
       </div>
     </div>
     <!-- top end -->
     <!-- list start-->
-    <div class="sortView_list">
-      <div class="sortView_list_item" v-for="i in 5" :key="i">
+    <div
+      class="sortView_list"
+      v-loading="loading"
+      element-loading-text="Loading..."
+    >
+      <!-- no data strat -->
+      <el-empty v-if="articles.length <= 0" description="该博主很懒，没有更新内容！！！"></el-empty>
+      <!-- no data end -->
+
+      <div
+        class="sortView_list_item"
+        v-for="article in articles"
+        :key="article.id"
+        @click="gotoDetail(article.id)"
+      >
         <div class="sortView_list_item_top">
           <div class="sortView_list_item_top_title">
-            UIN-APP IOS打包上架指南
+            {{ article.title }}
           </div>
           <div class="sortView_list_item_top_time no_select">
-            2020-11-17 发表在 <span class="type">技术类</span>
+            {{ article.time }}
+            <span class="type">{{ article.typeName }}</span>
           </div>
         </div>
         <div class="sortView_list_item_info ellipsis_two">
-          0x001 前言 号称跨平台终极解决方案的UNI
-          APP教程它来了；uni-app在开发者数量、案例、跨端抹平度、扩展灵活性、性能体验、周边生态、学习成本、开
-          发成本等
+          {{ article.subtitle }}
         </div>
       </div>
     </div>
     <!-- list end -->
+    <!-- pagination start -->
+    <div class="pagination">
+      <el-pagination
+        hide-on-single-page
+        :page-size="10"
+        :pager-count="11"
+        layout="prev, pager, next"
+        :total="total"
+        @current-change="handleCurrentChange"
+      >
+      </el-pagination>
+    </div>
+    <!-- pagination end -->
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, getCurrentInstance, computed } from "vue";
+import { useRouter } from "vue-router";
+import dayjs from "dayjs";
 export default defineComponent({
   setup() {
-    const typeList = reactive([
-      {
-        id: 0,
-        name: "全部",
-      },
-      {
-        id: 1,
-        name: "前端",
-      },
-      {
-        id: 2,
-        name: "后端",
-      },
-    ]);
+    const articleList = ref([]);
+    const total = ref(0);
+    const nomore = ref(false);
+    const pageNum = ref(1);
+    const pageSize = ref(10);
+    //路由
+    const router = useRouter();
+    //全局方法
+    const { proxy } = getCurrentInstance();
+    const typeList = ref([]);
     const selected = ref(0);
 
+    //选择类型
     const selectType = (type) => {
       selected.value = type.id;
+      pageNum.value = 1;
+      pageSize.value = 10;
+      if (type.id) {
+        getList(type.id);
+      } else {
+        getList();
+      }
     };
+    //加载
+    const loading = ref(true);
+
+    const articles = computed(() => {
+      let arr = [];
+      if (articleList.value.length > 0) {
+        arr = articleList.value.map((t) => {
+          if (t.updateDate) {
+            return {
+              ...t,
+              time:
+                dayjs(t.updateDate).format("YYYY-MM-DD HH:mm:ss") + " 更新在",
+            };
+          } else {
+            return {
+              ...t,
+              time:
+                dayjs(t.createDate).format("YYYY-MM-DD HH:mm:ss") + " 发表在",
+            };
+          }
+        });
+      }
+      return arr;
+    });
+
+    //获取类型
+    const getType = () => {
+      proxy.$http.getUrl("info/articleType").then((res) => {
+        typeList.value = [
+          {
+            id: 0,
+            label: "全部",
+          },
+          ...res.result,
+        ];
+      });
+    };
+
+    //获取列表
+    const getList = (type) => {
+      loading.value = true;
+      let date = {
+        type,
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+      };
+      proxy.$http.getUrl("info/articleAll", date).then((res) => {
+        if (res.pageNum == pageNum.value) {
+          articleList.value = res.result;
+          total.value = res.total;
+          nomore.value = res.result.length >= res.total;
+
+          loading.value = false;
+        }
+      });
+    };
+    //下一页
+    const handleCurrentChange = (val) => {
+      if (!nomore.value) {
+        pageNum.value = val;
+        getList();
+      }
+    };
+    //查看
+    const gotoDetail = (id) => {
+      router.push({
+        path: "/detail",
+        query: {
+          id: id,
+        },
+      });
+    };
+
+    getList();
+    getType();
 
     return {
       typeList,
       selected,
       selectType,
+      gotoDetail,
+      total,
+      articles,
+      handleCurrentChange,
+      loading,
     };
   },
 });
@@ -112,6 +223,7 @@ export default defineComponent({
     }
   }
   .sortView_list {
+    min-height: 3.77rem;
     height: 1px;
     flex: 1;
     width: 100%;
@@ -151,6 +263,13 @@ export default defineComponent({
         color: #666666;
       }
     }
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.2rem;
   }
 }
 </style>

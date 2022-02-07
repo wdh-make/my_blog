@@ -12,7 +12,16 @@
     </div>
     <!-- top end -->
     <!-- list start-->
-    <div class="homeView_list" v-loading="loading" element-loading-text="Loading..." >
+    <div
+      class="homeView_list"
+      v-loading="loading"
+      element-loading-text="Loading..."
+    >
+
+      <!-- no data strat -->
+      <el-empty v-if="articles.length <= 0" description="该博主很懒，没有更新内容！！！"></el-empty>
+      <!-- no data end -->
+
       <div
         class="homeView_list_item"
         v-for="article in articles"
@@ -30,7 +39,7 @@
             {{ article.title }}
           </div>
           <div class="homeView_list_item_top_time no_select">
-            {{ article.createDate }} 发表在
+            {{ article.time }} 
             <span class="type">{{ article.typeName }}</span>
           </div>
         </div>
@@ -90,11 +99,17 @@ export default defineComponent({
       let arr = [];
       if (articleList.value.length > 0) {
         arr = articleList.value.map((t) => {
-          return {
-            ...t,
-            createDate: dayjs(t.createDate).format("YYYY-MM-DD HH:mm:ss"),
-            updateDate: dayjs(t.updateDate).format("YYYY-MM-DD HH:mm:ss"),
-          };
+          if (t.updateDate) {
+            return {
+              ...t,
+              time: dayjs(t.updateDate).format("YYYY-MM-DD HH:mm:ss") + ' 更新在'
+            };
+          }else {
+            return {
+              ...t,
+              time: dayjs(t.createDate).format("YYYY-MM-DD HH:mm:ss") + ' 发表在'
+            };
+          }
         });
       }
       return arr;
@@ -297,5 +312,4 @@ export default defineComponent({
 //     color: var(--el-pagination-hover-color);
 //     cursor: default;
 //   }
-
 </style>

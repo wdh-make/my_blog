@@ -83,7 +83,8 @@ export default defineComponent({
     .headView_menu_item {
       cursor: pointer;
       width: 0.9rem;
-      font-size: 0.16rem;
+      // font-size: 0.16rem;
+      font-size: 16px;
       line-height: 0.22rem;
       font-weight: 600;
       color: #282828;

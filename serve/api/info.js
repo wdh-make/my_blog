@@ -48,11 +48,12 @@ router.post("/saveArticle", async (req, res) => {
     successMsg = "文章编辑成功！";
     errMsg = "文章编辑失败！";
     sql =
-      "UPDATE `article` SET `title`=?,`subtitle`=?,`content`=?,`updateDate`=?,`status`=?,`editor`=?,`type`=? WHERE id = ?";
+      "UPDATE `article` SET `title`=?,`subtitle`=?,`content`=?,`updateDate`=?,`releaseTime`=?,`status`=?,`editor`=?,`type`=? WHERE id = ?";
     data = [
       params.title,
       params.subtitle,
       params.content,
+      updateDate,
       updateDate,
       params.status,
       token.data.name,
@@ -138,23 +139,29 @@ router.post("/delArticle", async (req, res) => {
 //查找全部文章
 router.get("/articleAll", async (req, res) => {
   var headers = JSON.parse(JSON.stringify(req.headers));
-  let token = await verify.getToken(headers[setting.token.header]);
-  // console.log(token);
+  let token = await verify
+    .getToken(headers[setting.token.header])
+    .catch(() => {});
   let params = url.parse(req.url, true);
+  // console.log(params)
   var oldPageNum = params.query.pageNum ? Number(params.query.pageNum) : 1;
   var pageSize = params.query.pageSize ? Number(params.query.pageSize) : 10;
   var pageNum = (oldPageNum - 1) * pageSize;
+  var type = params.query.type || ''
 
-  var sql1 = "select COUNT(*) from article ";
+  var sql1 = "select COUNT(id) from article where valid = ? and status = ? and (type = ? or ? = '')";
+  let data1 = [1, 1, type, type];
   var sql2 =
-    "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ? and status = ? ORDER BY createDate desc limit ?,? ";
-  let data = [1, 1, pageNum, pageSize];
+    "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ? and status = ? and (type = ? or ? = '') ORDER BY releaseTime desc limit ?,? ";
+  let data2 = [1, 1, type, type, pageNum, pageSize];
   if (token) {
+    sql1 = "select COUNT(id) from article where valid = ? and (type = ? or ? = '')";
+    data1 = [1, type, type];
     sql2 =
-      "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ?  ORDER BY createDate desc limit ?,? ";
-    data = [1, pageNum, pageSize];
+      "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ? and (type = ? or ? = '')  ORDER BY releaseTime desc limit ?,? ";
+    data2 = [1, type, type, pageNum, pageSize];
   }
-  pool.query(sql1, [], function (err, result) {
+  pool.query(sql1, data1, function (err, result) {
     if (err) {
       return res.send({
         status: -1,
@@ -165,9 +172,9 @@ router.get("/articleAll", async (req, res) => {
     // console.log(result)
 
     if (result) {
-      total = result[0]["COUNT(*)"];
+      total = result[0]["COUNT(id)"];
     }
-    pool.query(sql2, data, function (err, result) {
+    pool.query(sql2, data2, function (err, result) {
       if (err) throw err;
 
       var data = result;
@@ -184,20 +191,53 @@ router.get("/articleAll", async (req, res) => {
 });
 //查找文章 id
 router.get("/articleId", async (req, res) => {
+  var headers = JSON.parse(JSON.stringify(req.headers));
+  let token = await verify
+    .getToken(headers[setting.token.header])
+    .catch(() => {});
   let params = url.parse(req.url, true);
   // console.log(params.query);
-  var sql = "select * from article where id = ? ";
-  pool.query(sql, [params.query.id], function (err, result) {
+  var sql = "select * from article where id = ? and valid = ? and status = ?";
+  let data = [params.query.id, 1, 1];
+  if (token) {
+    sql = "select * from article where id = ? and valid = ? ";
+    data = [params.query.id, 1];
+  }
+  pool.query(sql, data, function (err, result) {
     //   console.log(result)
     if (err) throw err;
-    var data = result[0] || [];
+    var data = result[0];
+    if(data) {
+      return res.send({
+        status: 1,
+        msg: "查询成功",
+        result: data,
+      });
+    }else {
+      return res.send({
+        status: -1,
+        msg: "此id无效",
+        result: [],
+      });
+    }
+    
+  });
+});
+
+//文章类型
+router.get("/articleType", async (req, res) => {
+  let params = url.parse(req.url, true);
+  let sql = "select type_id as id, type_name as label from article_type"
+  pool.query(sql,[],(err, result)=>{
+    if (err) throw err;
     return res.send({
       status: 1,
       msg: "查询成功",
-      result: data,
+      result: result,
     });
-  });
+  })
 });
+
 // 上传文件
 router.post("/upload", async (req, res) => {
   var headers = JSON.parse(JSON.stringify(req.headers));

@@ -59,6 +59,10 @@ baseAxios.getUrl = (url, params = {}, { showErrflag = true } = {}) => {
         (response) => {
           let retData = response.data;
           retData.isok = retData.status === 1;
+          if (retData.status === 401 && retData.msg.includes("token失效")) {
+            store.dispatch("logout");
+            return;
+          }
 
           if (!retData.isok) {
             console.warn(url, params, retData);
@@ -145,7 +149,7 @@ baseAxios.postUrl = (
 
           let retData = response.data;
 
-          console.log(retData);
+          // console.log(retData);
           if (response.status == 200 && !retData.status) {
             resolve(retData);
             return;

@@ -55,6 +55,25 @@ router.post("/login", (req, res) => {
   );
 });
 
+//验证token是否存在
+router.post("/check_token", async (req, res) => {
+  var headers = JSON.parse(JSON.stringify(req.headers));
+  let token = await verify.getToken(headers[setting.token.header]).catch(() => {});
+  if (!token) {
+    return res.send({
+      status: 1,
+      check_token: false,
+      msg: "游客",
+    });
+  }else {
+    return res.send({
+      status: 1,
+      check_token: true,
+      msg: "用户",
+    });
+  }
+})
+
 // 创建用户
 router.post("/createUser", async (req, res) => {
   var headers = JSON.parse(JSON.stringify(req.headers));

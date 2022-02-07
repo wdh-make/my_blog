@@ -28,9 +28,9 @@
             <el-select v-model="form.type" placeholder="请选择类型">
               <el-option
                 v-for="item in typeList"
-                :key="item.value"
+                :key="item.id"
                 :label="item.label"
-                :value="item.value"
+                :value="item.id"
               >
               </el-option>
             </el-select>
@@ -88,7 +88,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, getCurrentInstance } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  getCurrentInstance,
+} from "vue";
 import Tinymce from "@/components/tinymce/index";
 import { useRoute, useRouter } from "vue-router";
 import { ArrowRight } from "@element-plus/icons-vue";
@@ -114,28 +119,7 @@ export default defineComponent({
       content: [{ required: true, message: "请输入文章内容", trigger: "blur" }],
     });
     //类型
-    const typeList = reactive([
-      {
-        id: 1,
-        label: "HTML",
-        value: 1,
-      },
-      {
-        id: 2,
-        label: "vue2.0",
-        value: 2,
-      },
-      {
-        id: 3,
-        label: "vue3.0",
-        value: 3,
-      },
-      {
-        id: 4,
-        label: "JavaScript",
-        value: 4,
-      },
-    ]);
+    const typeList = ref([]);
 
     //路由
     const route = useRoute();
@@ -157,6 +141,13 @@ export default defineComponent({
       });
     };
 
+    //获取类型
+    const getType = () => {
+      proxy.$http.getUrl("info/articleType").then((res) => {
+        typeList.value = res.result;
+      });
+    };
+    //获取信息
     const getInfo = () => {
       if (id) {
         proxy.$http.getUrl("info/articleId", { id }).then((res) => {
@@ -169,6 +160,7 @@ export default defineComponent({
     };
 
     getInfo();
+    getType();
 
     return {
       ruleFormRef,

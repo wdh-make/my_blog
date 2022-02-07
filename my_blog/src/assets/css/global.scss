@@ -90,3 +90,23 @@ body {
   display: flex;
   align-items: center;
 }
+//loading
+.el-loading-spinner .path {
+  stroke: #282828 !important;
+}
+.el-loading-spinner .el-loading-text {
+  color: #282828;
+}
+//pagination
+.el-pager li.active {
+  color: #282828;
+}
+.el-pager li:hover {
+  color: #282828;
+}
+.el-pager li {
+  color: #999;
+}
+.el-pagination button:hover {
+  color: #282828;
+}

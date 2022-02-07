@@ -1,13 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 import { getItem } from "@/assets/js/utils";
 
-import Home from '../views/Home.vue'
+import Home from "../views/Home.vue";
 import store from "../store/index";
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
+    path: "/",
+    name: "Home",
     component: Home,
     children: [
       {
@@ -15,65 +15,72 @@ const routes = [
         redirect: "home",
       },
       {
-        path: '/home',
-        name: 'home',
-        component: () => import(/* webpackChunkName: "about" */ '../views/HomeView')
+        path: "/home",
+        name: "home",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "../views/HomeView"),
       },
       {
-        path: '/blog',
-        name: 'blog',
-        component: () => import(/* webpackChunkName: "about" */ '../views/BlogView')
+        path: "/blog",
+        name: "blog",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "../views/BlogView"),
       },
       {
-        path: '/sort',
-        name: 'sort',
-        component: () => import(/* webpackChunkName: "about" */ '../views/SortView')
+        path: "/sort",
+        name: "sort",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "../views/SortView"),
       },
       {
-        path: '/about',
-        name: 'about',
-        component: () => import(/* webpackChunkName: "about" */ '../views/AboutView')
-      }
-    ]
+        path: "/about",
+        name: "about",
+        component: () =>
+          import(/* webpackChunkName: "about" */ "../views/AboutView"),
+      },
+    ],
   },
   {
-    path: '/detail',
-    name: 'Detail',
+    path: "/detail",
+    name: "Detail",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/DetailView')
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/DetailView"),
   },
   {
-    path: '/edit',
-    name: 'Edit',
+    path: "/edit",
+    name: "Edit",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/EditView')
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/EditView"),
   },
   {
-    path: '/about',
-    name: 'About',
+    path: "/about",
+    name: "About",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/About.vue"),
   },
   {
-    path: '/login',
-    name: 'Login',
+    path: "/login",
+    name: "Login",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Login')
-  }
-]
+    component: () => import(/* webpackChunkName: "about" */ "../views/Login"),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 router.beforeEach((to, from, next) => {
   // console.log(to, 'router');
   // if (to.meta.requiresAuth !== false) {
@@ -92,29 +99,32 @@ router.beforeEach((to, from, next) => {
   //   if(t) {
   //     app.setItem("Authorization", t);
   //   }
-    // let token = app.getItem("Authorization");
-    // if (!token) {
-    //   // next('/login');
-    //   app.errMessage("Token已失效，请重新登入！！");
-    //   store.commit("setRouteName", to);
-    //   next();
-    //   return;
-    // } else {
-      // store.commit("setRouteName", to);
-      // next();
-    // }
+  // let token = app.getItem("Authorization");
+  // if (!token) {
+  //   // next('/login');
+  //   app.errMessage("Token已失效，请重新登入！！");
+  //   store.commit("setRouteName", to);
+  //   next();
+  //   return;
   // } else {
-    let token = getItem('token')
-    if(to.fullPath.includes("/edit") && !token) {
-      next('/login');
+  // store.commit("setRouteName", to);
+  // next();
+  // }
+  // } else {
+  store.dispatch("checkToken").then(() => {
+    let token = getItem("token");
+    if (to.fullPath.includes("/edit") && !token) {
+      next("/login");
       return;
     }
 
-    store.commit('setToken', token)
-    let userInfo = getItem('user')
-    store.commit('setUserInfo', userInfo)
+    store.commit("setToken", token);
+    let userInfo = getItem("user");
+    store.commit("setUserInfo", userInfo);
     store.commit("setRouteName", to);
     next();
+  }).finally(()=>{})
+
   // }
 });
-export default router
+export default router;
