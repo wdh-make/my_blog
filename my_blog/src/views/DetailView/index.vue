@@ -1,16 +1,20 @@
 <template>
   <div class="box" ref="box">
-    <div class="detailBox" v-if="article">
+    <div class="detailBox" >
       <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item :to="{ path: '/' }">Home</el-breadcrumb-item>
-        <el-breadcrumb-item>{{ article.title }}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ article?.title }}</el-breadcrumb-item>
       </el-breadcrumb>
-      <div class="html">
+      <div class="html" v-if="article">
         <div class="heard">
           <div class="articeTitle">{{ article.title }}</div>
           <div class="articeTime">{{ articleTime }}</div>
         </div>
         <div v-html="article.content"></div>
+      </div>
+      <!-- 评论 -->
+      <div class="comment">
+        <!-- 后续跟新 -->
       </div>
     </div>
     <!-- 删除 -->
@@ -32,10 +36,18 @@
   </div>
 </template>
 <script>
+import Prismjs from "@/assets/js/prism";
+import "@/assets/css/prism.css";
 import { ArrowRight, Edit, CaretTop, Delete } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import dayjs from "dayjs";
-import { defineComponent, ref, getCurrentInstance, computed } from "vue";
+import {
+  defineComponent,
+  ref,
+  getCurrentInstance,
+  computed,
+  onMounted,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 export default defineComponent({
@@ -74,6 +86,9 @@ export default defineComponent({
     const getInfo = () => {
       proxy.$http.getUrl("info/articleId", { id }).then((res) => {
         article.value = res.result;
+        setTimeout(() => {
+          Prismjs.highlightAll();
+        },0);
         // console.log(article.value);
       });
     };
@@ -122,6 +137,10 @@ export default defineComponent({
     });
 
     getInfo();
+
+    onMounted(() => {
+      setTimeout(() => {}, 1000);
+    });
 
     return {
       article,

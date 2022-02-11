@@ -76,7 +76,7 @@ server.use((err, req, res, next) => {
 });
 
 //设置端口号
-server.listen(3001, () => {
+server.listen(3001,'0.0.0.0', () => {
   console.log("服务器启动...");
 });
 

@@ -15,12 +15,12 @@ import "tinymce/plugins/lists";
 import "tinymce/plugins/advlist";
 import "tinymce/plugins/anchor";
 import "tinymce/plugins/autolink"; //锚点
-import "tinymce/plugins/autoresize";
-import "tinymce/plugins/autosave";
+import "tinymce/plugins/autoresize"; //编辑器高度自适应,注：plugins里引入此插件时，Init里设置的height将失效
+import "tinymce/plugins/autosave"; // 自动存稿
 import "tinymce/plugins/charmap"; //特殊字符
 import "tinymce/plugins/code"; //查看源码
 import "tinymce/plugins/codesample"; //插入代码
-import "tinymce/plugins/directionality"; //
+import "tinymce/plugins/directionality"; //文字方向
 import "tinymce/plugins/fullpage"; //页面属性编辑
 import "tinymce/plugins/fullscreen"; //全屏
 import "tinymce/plugins/help"; //帮助
@@ -60,8 +60,10 @@ export default {
     const { proxy } = getCurrentInstance();
     const init = {
       language_url: require("./zh_CN.js"), // 中文语言包路径
+      // language_url: "/tinymce/langs/zh_CN.js", // 中文语言包路径
       language: "zh_CN",
-      skin_url: require("tinymce/skins/ui/oxide/skin.css"), // 编辑器皮肤样式
+      // skin_url: require("tinymce/skins/ui/oxide/skin.css"), // 编辑器皮肤样式
+      skin_url: "/tinymce/skins/ui/oxide", // 编辑器皮肤样式
       // theme:'silver',
       menubar: false, // 隐藏菜单栏
       autoresize_bottom_margin: 50,

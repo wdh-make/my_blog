@@ -20,7 +20,7 @@
       element-loading-text="Loading..."
     >
       <!-- no data strat -->
-      <el-empty v-if="articles.length <= 0" description="该博主很懒，没有更新内容！！！"></el-empty>
+      <el-empty v-if="!loading && articles.length <= 0" description="该博主很懒，没有更新内容！！！"></el-empty>
       <!-- no data end -->
 
       <div

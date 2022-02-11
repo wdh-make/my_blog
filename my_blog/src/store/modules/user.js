@@ -18,23 +18,23 @@ const mutations = {
   },
 };
 const actions = {
-  logout(context) {
+  logout({commit}) {
     setItem("token", null);
     setItem("user", null);
-    context.commit("setUserInfo", null);
-    context.commit("setToken", null);
+    commit("setUserInfo", null);
+    commit("setToken", null);
     // router.push('/login')
     window.location.href = window.location.href.split("/")[0] + "/login";
   },
   //验证是否有token
-  checkToken(context) {
+  checkToken({commit}) {
     return new Promise((resolve) => {
       axios.postUrl("/user/check_token").then((res) => {
         if (!res.check_token) {
           setItem("token", null);
           setItem("user", null);
-          context.commit("setUserInfo", null);
-          context.commit("setToken", null);
+          commit("setUserInfo", null);
+          commit("setToken", null);
         }
         resolve()
       });

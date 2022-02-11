@@ -147,15 +147,17 @@ router.get("/articleAll", async (req, res) => {
   var oldPageNum = params.query.pageNum ? Number(params.query.pageNum) : 1;
   var pageSize = params.query.pageSize ? Number(params.query.pageSize) : 10;
   var pageNum = (oldPageNum - 1) * pageSize;
-  var type = params.query.type || ''
+  var type = params.query.type || "";
 
-  var sql1 = "select COUNT(id) from article where valid = ? and status = ? and (type = ? or ? = '')";
+  var sql1 =
+    "select COUNT(id) from article where valid = ? and status = ? and (type = ? or ? = '')";
   let data1 = [1, 1, type, type];
   var sql2 =
     "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ? and status = ? and (type = ? or ? = '') ORDER BY releaseTime desc limit ?,? ";
   let data2 = [1, 1, type, type, pageNum, pageSize];
   if (token) {
-    sql1 = "select COUNT(id) from article where valid = ? and (type = ? or ? = '')";
+    sql1 =
+      "select COUNT(id) from article where valid = ? and (type = ? or ? = '')";
     data1 = [1, type, type];
     sql2 =
       "select id,author,title,subtitle,content,type,type_name as typeName,createDate,updateDate from article a left join article_type b on a.type=b.type_id where valid = ? and (type = ? or ? = '')  ORDER BY releaseTime desc limit ?,? ";
@@ -207,35 +209,261 @@ router.get("/articleId", async (req, res) => {
     //   console.log(result)
     if (err) throw err;
     var data = result[0];
-    if(data) {
+    if (data) {
       return res.send({
         status: 1,
         msg: "查询成功",
         result: data,
       });
-    }else {
+    } else {
       return res.send({
         status: -1,
         msg: "此id无效",
         result: [],
       });
     }
-    
   });
+  //文章浏览量
+  var ip =
+    req.headers["x-real-ip"] ||
+    req.headers["x-wq-realip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress;
+  // console.log(ip)
+  let cResult = await check_ip(ip);
+  if (cResult.length == 0) {
+  }
 });
 
 //文章类型
 router.get("/articleType", async (req, res) => {
-  let params = url.parse(req.url, true);
-  let sql = "select type_id as id, type_name as label from article_type"
-  pool.query(sql,[],(err, result)=>{
+  // let params = url.parse(req.url, true);
+  let sql = "select type_id as id, type_name as label from article_type";
+  pool.query(sql, [], (err, result) => {
     if (err) throw err;
     return res.send({
       status: 1,
       msg: "查询成功",
       result: result,
     });
-  })
+  });
+});
+
+//点赞
+router.post("/like", async (req, res) => {
+  let params = req.body;
+  var ip =
+    req.headers["x-real-ip"] ||
+    req.headers["x-wq-realip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress;
+  // console.log(ip)
+  let cResult = await check_ip(ip);
+  // console.log(cResult)
+  if (cResult.length == 0) {
+    let aResult = await add_ip(ip, params.isLike).catch((err) => {
+      return res.send({
+        status: -1,
+        msg: "点赞失败，请从新操作！",
+      });
+    });
+    if (aResult.affectedRows == 1) {
+      let count = await getCount();
+      return res.send({
+        status: 1,
+        msg: "点赞成功！",
+        result: {
+          count: count,
+        },
+      });
+    } else {
+      return res.send({
+        status: -1,
+        msg: "点赞失败，请从新操作！",
+      });
+    }
+  } else {
+    let uResult = await update_ip(ip, params.isLike).catch((err) => {
+      return res.send({
+        status: -1,
+        msg: "点赞失败，请从新操作！",
+      });
+    });
+    if (uResult.affectedRows == 1) {
+      let count = await getCount();
+      return res.send({
+        status: 1,
+        msg: "点赞成功！",
+        result: {
+          count: count,
+        },
+      });
+    } else {
+      return res.send({
+        status: -1,
+        msg: "点赞失败，请从新操作！",
+      });
+    }
+  }
+  // let sql1 = "select id from user_ip where ip = ? limit ?";
+  // let data1 = [ip, 1];
+  // pool.query(sql1, data1, (err, result) => {
+  //   if (err) throw err;
+  //   if (result.length == 0) {
+  //     let sql2 = "INSERT INTO user_ip ( ip, isLike) VALUES (?,?)";
+  //     let data2 = [ip, params.isLike];
+  //     pool.query(sql2, data2, async (err, result) => {
+  //       if (err) {
+  //         return res.send({
+  //           status: -1,
+  //           msg: "点赞失败，请从新操作！",
+  //         });
+  //       }
+  //       if (result.affectedRows == 1) {
+  //         let count = await getCount();
+  //         return res.send({
+  //           status: 1,
+  //           msg: "点赞成功！",
+  //           result: {
+  //             count: count,
+  //           },
+  //         });
+  //       } else {
+  //         return res.send({
+  //           status: -1,
+  //           msg: "点赞失败，请从新操作！",
+  //           // data: data
+  //         });
+  //       }
+  //     });
+  //   } else {
+  //     let sql3 = "UPDATE `user_ip` SET `isLike`=? WHERE ip = ?";
+  //     let data3 = [params.isLike, ip];
+  //     pool.query(sql3, data3, async (err, result) => {
+  //       if (err) {
+  //         // console.log(err);
+  //         return res.send({
+  //           status: -1,
+  //           msg: "点赞失败，请重新操作！",
+  //         });
+  //       }
+  //       if (result.affectedRows == 1) {
+  //         let count = await getCount();
+  //         return res.send({
+  //           status: 1,
+  //           msg: "点赞成功！",
+  //           result: {
+  //             count,
+  //           },
+  //         });
+  //       } else {
+  //         return res.send({
+  //           status: -1,
+  //           msg: "点赞失败，请重新操作！",
+  //           // data: data
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
+});
+//判断ip是否存在方法
+function check_ip(ip) {
+  return new Promise((resolve, reject) => {
+    let sql = "select id, isLike, article_id from user_ip where ip = ? limit ?";
+    let data = [ip, 1];
+    pool.query(sql, data, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+//添加ip方法
+function add_ip(ip, isLike) {
+  return new Promise((resolve, reject) => {
+    let createDate = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    let sql = "INSERT INTO user_ip ( ip, isLike, createDate) VALUES (?,?,?)";
+    pool.query(sql, [ip, isLike, createDate], (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+//跟新ip方法
+function update_ip(ip, isLike = "", article_id = "") {
+  return new Promise((resolve, reject) => {
+    let updateDate = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    let sql =
+      "UPDATE `user_ip` SET `isLike`=?,`updateDate`=?,`article_id`=? WHERE ip = ?";
+    let data = [];
+    if (isLike == "" && article_id != "") {
+      data = [updateDate, article_id, ip];
+    } else if (article_id == "" && isLike != "") {
+      data = [updateDate, ip];
+    } else if (article_id == "" && isLike == "") {
+      data = [ip];
+    } else {
+      data = [isLike, updateDate, article_id, ip];
+    }
+    pool.query(sql, data, (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result);
+    });
+  });
+}
+//查询数量方法
+function getCount() {
+  return new Promise((resolve, reject) => {
+    let sql = "select COUNT(id) from user_ip where isLike = ?";
+    pool.query(sql, [1], (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      let total = 0;
+      if (result) {
+        total = result[0]["COUNT(id)"];
+      }
+      resolve(total);
+    });
+  });
+}
+
+//查询数量
+router.get("/like_count", async (req, res) => {
+  var ip =
+    req.headers["x-real-ip"] ||
+    req.headers["x-wq-realip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress;
+  console.log(ip);
+  let isLike = false;
+  let cResult = await check_ip(ip);
+  if (cResult.length == 0) {
+    await add_ip(ip, 0);
+  } else {
+    isLike = cResult[0].isLike ? true : false;
+  }
+  let count = await getCount();
+  return res.send({
+    status: 1,
+    msg: "查询成功！",
+    result: {
+      count: count,
+      isLike,
+    },
+  });
 });
 
 // 上传文件

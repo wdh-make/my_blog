@@ -1,6 +1,8 @@
 <template>
-  <div v-html="html">
-      
+  <div class="blogView">
+      <!-- no data strat -->
+      <el-empty  description="该博主很懒，没有更新内容！！！"></el-empty>
+      <!-- no data end -->
   </div>
 </template>
 
@@ -18,6 +20,11 @@ export default defineComponent({
 </script>
 
 
-<style>
-
+<style lang="scss">
+.blogView {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>

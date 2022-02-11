@@ -1,11 +1,20 @@
 <template>
   <div class="box">
-    <div class="editBox" v-if="show">
+    <div class="editBox" >
       <el-breadcrumb :separator-icon="ArrowRight">
         <el-breadcrumb-item :to="{ path: '/' }">Home</el-breadcrumb-item>
+        <el-breadcrumb-item
+          :to="{
+            path: '/detail',
+            query: {
+              id,
+            },
+          }"
+          >详情</el-breadcrumb-item
+        >
         <el-breadcrumb-item>编辑文章</el-breadcrumb-item>
       </el-breadcrumb>
-      <div class="fromBox">
+      <div class="fromBox" v-if="show">
         <el-form
           ref="ruleFormRef"
           :model="form"
@@ -88,12 +97,7 @@
 </template>
 
 <script>
-import {
-  defineComponent,
-  ref,
-  reactive,
-  getCurrentInstance,
-} from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance } from "vue";
 import Tinymce from "@/components/tinymce/index";
 import { useRoute, useRouter } from "vue-router";
 import { ArrowRight } from "@element-plus/icons-vue";
@@ -170,6 +174,7 @@ export default defineComponent({
       save,
       show,
       ArrowRight,
+      id
     };
   },
 });
@@ -185,6 +190,7 @@ export default defineComponent({
 .editBox {
   width: 14.4rem;
   // height: 100vh;
+  min-height: 7.25rem;
   box-sizing: border-box;
   padding: 0.4rem;
   margin: 0.8rem auto;

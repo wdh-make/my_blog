@@ -55,8 +55,14 @@ router.post("/login", (req, res) => {
   );
 });
 
-//验证token是否存在
+//验证token是否存在/获取ip
 router.post("/check_token", async (req, res) => {
+  var ip = req.headers['x-real-ip'] || req.headers['x-wq-realip'] || req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress;
+    console.log(ip)
+    // console.log(req.headers)
   var headers = JSON.parse(JSON.stringify(req.headers));
   let token = await verify.getToken(headers[setting.token.header]).catch(() => {});
   if (!token) {

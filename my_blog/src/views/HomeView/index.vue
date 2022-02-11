@@ -7,7 +7,7 @@
         :class="{ selected: selected }"
         @click="like"
       >
-        Like {{ count }}
+        Like<span style="margin-left:3px;" v-show="isShow">{{ count }}</span>
       </div>
     </div>
     <!-- top end -->
@@ -17,9 +17,11 @@
       v-loading="loading"
       element-loading-text="Loading..."
     >
-
       <!-- no data strat -->
-      <el-empty v-if="articles.length <= 0" description="该博主很懒，没有更新内容！！！"></el-empty>
+      <el-empty
+        v-if="!loading && articles.length <= 0"
+        description="该博主很懒，没有更新内容！！！"
+      ></el-empty>
       <!-- no data end -->
 
       <div
@@ -39,7 +41,7 @@
             {{ article.title }}
           </div>
           <div class="homeView_list_item_top_time no_select">
-            {{ article.time }} 
+            {{ article.time }}
             <span class="type">{{ article.typeName }}</span>
           </div>
         </div>
@@ -73,6 +75,7 @@ import dayjs from "dayjs";
 export default defineComponent({
   setup() {
     const count = ref(0);
+    const isShow = ref(false)
     const selected = ref(false);
     const articleList = ref([]);
     const total = ref(0);
@@ -93,6 +96,7 @@ export default defineComponent({
       } else {
         count.value--;
       }
+      getLike(selected.value);
     };
 
     const articles = computed(() => {
@@ -102,12 +106,14 @@ export default defineComponent({
           if (t.updateDate) {
             return {
               ...t,
-              time: dayjs(t.updateDate).format("YYYY-MM-DD HH:mm:ss") + ' 更新在'
+              time:
+                dayjs(t.updateDate).format("YYYY-MM-DD HH:mm:ss") + " 更新在",
             };
-          }else {
+          } else {
             return {
               ...t,
-              time: dayjs(t.createDate).format("YYYY-MM-DD HH:mm:ss") + ' 发表在'
+              time:
+                dayjs(t.createDate).format("YYYY-MM-DD HH:mm:ss") + " 发表在",
             };
           }
         });
@@ -148,15 +154,38 @@ export default defineComponent({
       });
     };
 
+    //点赞
+    const getLike = (isLike) => {
+      let data = {
+        isLike: isLike ? 1 : 0,
+      };
+      proxy.$http.postUrl("info/like", data).then((res) => {
+        proxy.$success(res.msg);
+        count.value = res.result.count;
+      });
+    };
+
+    //获取点赞数量
+    const getLikeCount = () => {
+      proxy.$http.getUrl("info/like_count").then((res) => {
+        count.value = res.result.count;
+        selected.value = res.result.isLike 
+      }).finally(()=>{
+        isShow.value = true
+      })
+    };
+
     //是否登录
     const online = computed(() => {
       return store.getters.token ? true : false;
     });
 
     getList();
+    getLikeCount()
 
     return {
       count,
+      isShow,
       selected,
       like,
       online,
