@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: 2021-04-02 09:59:13
+-- Generation Time: 2022-03-16 13:37:58
 -- 服务器版本： 5.6.50-log
 -- PHP Version: 5.6.40
 
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ht_study_desk`
+-- Database: `my_blog`
 --
 
 -- --------------------------------------------------------
@@ -37,16 +37,66 @@ CREATE TABLE IF NOT EXISTS `admin_user` (
   `mg_state` tinyint(1) NOT NULL,
   `phone` varchar(11) NOT NULL,
   `updateDate` varchar(255) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 --
 -- 转存表中的数据 `admin_user`
 --
 
 INSERT INTO `admin_user` (`id`, `userName`, `passWord`, `power`, `realName`, `createDate`, `role`, `mg_state`, `phone`, `updateDate`) VALUES
-(1, 'admin', 'ht_123456', 99, 'admin', '2021-01-01', '超级管理员', 1, '1361111111', ''),
-(3, 'llf', 'lu123456', 99, '卢校长', '2021-3-28 4:22:29', '超级管理员', 1, '13611111111', '2021-3-31 9:45:55'),
-(10, 'zxd', 'zxd123', 10, '朱旭东', '2021-3-31 15:08:48', '教务主任', 1, '13611111111', '2021-3-31 15:08:48');
+(1, 'admin', '12345', 99, 'admin', '2021-01-01', '超级管理员', 1, '1361111111', ''),
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `article`
+--
+
+CREATE TABLE IF NOT EXISTS `article` (
+  `id` int(11) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `subtitle` varchar(200) NOT NULL,
+  `content` text NOT NULL,
+  `createDate` datetime NOT NULL,
+  `updateDate` datetime DEFAULT NULL,
+  `releaseTime` datetime NOT NULL,
+  `author` char(11) NOT NULL,
+  `type` char(11) NOT NULL,
+  `editor` varchar(11) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否发布',
+  `valid` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否有效',
+  `pageviews` int(20) NOT NULL DEFAULT '0' COMMENT '浏览量'
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `article`
+--
+
+INSERT INTO `article` (`id`, `title`, `subtitle`, `content`, `createDate`, `updateDate`, `releaseTime`, `author`, `type`, `editor`, `status`, `valid`, `pageviews`) VALUES
+(1, 'ces20220125', 'ces20220125ces20220125ces20220125ces20220125ces20220125', '<blockquote>\n<h3><span style="background-color: #f1c40f;">ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125ces20220125</span></h3>\n<h3>&nbsp;</h3>\n<h3><span style="background-color: #f1c40f;">ces20220125</span></h3>\n<h3><span style="background-color: #f1c40f;">ces20220125</span></h3>\n<h3><span style="background-color: #f1c40f;">ces20220125ces20220125</span></h3>\n<h3>ces20220125</h3>\n<h3>ces20220125</h3>\n<h3>ces20220125</h3>\n</blockquote>\n<p>&nbsp;</p>', '2022-01-19 17:37:26', '2022-01-25 17:55:19', '2022-01-25 17:55:19', 'admin', 'admin', 'admin', 1, 0, 0),
+(2, 'ces', '产生错误策恶策策', '<pre class="language-javascript"><code>tinymce.init({\n    selector: ''#tinydemo'',\n    plugins: "codesample",\n    toolbar: "codesample",\n});</code></pre>\n<p><img src="http://localhost:3001/static/upload/2022/01/19/1_16323028386911642583694858.jpg" /></p>', '2022-01-19 17:37:29', '2022-02-09 14:14:20', '2022-02-09 14:14:20', 'admin', '2', 'admin', 0, 1, 0),
+(3, 'ce1', 'ceecece', '<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>\n<p>ce&nbsp;</p>\n</body>\n</html>', '2022-01-24 10:42:39', NULL, '2022-01-24 10:42:39', 'admin', '1', NULL, 1, 1, 1),
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `article_type`
+--
+
+CREATE TABLE IF NOT EXISTS `article_type` (
+  `type_id` int(11) NOT NULL,
+  `type_name` char(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `article_type`
+--
+
+INSERT INTO `article_type` (`type_id`, `type_name`) VALUES
+(1, 'Vue'),
+(2, 'JavaScript'),
+(3, 'uniapp'),
+(99, '其它');
 
 -- --------------------------------------------------------
 
@@ -89,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `roleDes` varchar(255) DEFAULT NULL,
   `updateDate` varchar(20) DEFAULT NULL,
   `createDate` varchar(20) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
 
 --
 -- 转存表中的数据 `roles`
@@ -164,6 +214,29 @@ INSERT INTO `students` (`studentId`, `studentName`, `age`, `gender`, `phone`, `c
 (5, '学员2', 12, 0, '13455677777', 'css', 32, 34, '张老师', '2021-04-01 13:41:37', '2021-03-30 01:47:56', 1, 'xxx', 'xxxx', ''),
 (9, '葛欣灵', 13, 0, '13362928833', '少儿编程', 48, 48, '朱旭东', '2021-03-31 15:21:16', '2021-03-31 15:21:16', 1, '一小', '4', '朱旭东');
 
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `user_ip`
+--
+
+CREATE TABLE IF NOT EXISTS `user_ip` (
+  `id` int(11) NOT NULL,
+  `ip` varchar(15) NOT NULL,
+  `isLike` tinyint(1) NOT NULL,
+  `createDate` datetime NOT NULL,
+  `updateDate` datetime DEFAULT NULL,
+  `article_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `user_ip`
+--
+
+INSERT INTO `user_ip` (`id`, `ip`, `isLike`, `createDate`, `updateDate`, `article_id`) VALUES
+(14, '192.168.2.128', 0, '2022-02-11 10:00:00', NULL, NULL),
+(16, '192.168.2.109', 1, '2022-02-11 15:41:45', '2022-02-11 15:43:44', NULL);
+
 --
 -- Indexes for dumped tables
 --
@@ -173,6 +246,20 @@ INSERT INTO `students` (`studentId`, `studentName`, `age`, `gender`, `phone`, `c
 --
 ALTER TABLE `admin_user`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `article`
+--
+ALTER TABLE `article`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `article_type`
+--
+ALTER TABLE `article_type`
+  ADD PRIMARY KEY (`type_id`),
+  ADD UNIQUE KEY `id` (`type_id`),
+  ADD KEY `id_2` (`type_id`);
 
 --
 -- Indexes for table `menus`
@@ -199,6 +286,13 @@ ALTER TABLE `students`
   ADD PRIMARY KEY (`studentId`);
 
 --
+-- Indexes for table `user_ip`
+--
+ALTER TABLE `user_ip`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -206,7 +300,12 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `admin_user`
 --
 ALTER TABLE `admin_user`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=11;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=12;
+--
+-- AUTO_INCREMENT for table `article`
+--
+ALTER TABLE `article`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=14;
 --
 -- AUTO_INCREMENT for table `menus`
 --
@@ -216,7 +315,7 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=60;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=100;
 --
 -- AUTO_INCREMENT for table `signIn`
 --
@@ -227,6 +326,11 @@ ALTER TABLE `signIn`
 --
 ALTER TABLE `students`
   MODIFY `studentId` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+--
+-- AUTO_INCREMENT for table `user_ip`
+--
+ALTER TABLE `user_ip`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=17;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
