@@ -167,7 +167,7 @@ router.get("/articleAll", async (req, res) => {
     if (err) {
       return res.send({
         status: -1,
-        msg: err,
+        msg: '查询失败！',
       });
     }
     let total = 0;
@@ -182,7 +182,7 @@ router.get("/articleAll", async (req, res) => {
       var data = result;
       return res.send({
         status: 1,
-        msg: "查询成功",
+        msg: "查询成功！",
         result: data,
         total: total,
         pageNum: oldPageNum,
@@ -398,21 +398,21 @@ function add_ip(ip, isLike) {
   });
 }
 //跟新ip方法
-function update_ip(ip, isLike = "", article_id = "") {
+function update_ip(ip, isLike = "", article_id = null) {
   return new Promise((resolve, reject) => {
     let updateDate = dayjs().format("YYYY-MM-DD HH:mm:ss");
     let sql =
       "UPDATE `user_ip` SET `isLike`=?,`updateDate`=?,`article_id`=? WHERE ip = ?";
     let data = [];
-    if (isLike == "" && article_id != "") {
-      data = [updateDate, article_id, ip];
-    } else if (article_id == "" && isLike != "") {
-      data = [updateDate, ip];
-    } else if (article_id == "" && isLike == "") {
-      data = [ip];
-    } else {
+    // if (isLike == "" && article_id != "") {
+    //   data = [updateDate, article_id, ip];
+    // } else if (article_id == "" && isLike != "") {
+    //   data = [updateDate, ip];
+    // } else if (article_id == "" && isLike == "") {
+    //   data = [ip];
+    // } else {
       data = [isLike, updateDate, article_id, ip];
-    }
+    // }
     pool.query(sql, data, (err, result) => {
       if (err) {
         reject(err);

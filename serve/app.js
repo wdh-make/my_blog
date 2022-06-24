@@ -76,7 +76,8 @@ server.use((err, req, res, next) => {
 });
 
 //设置端口号
-server.listen(3001,'0.0.0.0', () => {
+server.listen(3001,'0.0.0.0', () => {//'0.0.0.'获取ipV4地址
+// server.listen(3001, () => {
   console.log("服务器启动...");
 });
 

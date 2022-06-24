@@ -9,7 +9,8 @@ const path = require("path")
  */
 function createDirsSync (dir, split, callback) {
     if (!fs.existsSync(dir)) {
-        var url = __dirname + '\\static\\upload\\'
+        var url = __dirname + '\\static\\upload\\' // 本地 \
+        // var url = __dirname + '\/static\/upload\/' // 线上 /
         var dirUrl = dir.replace(url,'')
         var dirArr = dirUrl.split(split);
         var pathtmp;
@@ -21,7 +22,7 @@ function createDirsSync (dir, split, callback) {
                 pathtmp = url + item;
             }
             if (!fs.existsSync(pathtmp)) {
-                if (!fs.mkdirSync(pathtmp)) {
+                if (!fs.mkdirSync(pathtmp, '0777')) {
                     // cb(null, item);
                     callback(false)
                 }
